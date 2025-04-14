@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manam Sapnim</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+    header {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 2rem;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+    }
+    .donate-section {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      padding: 2rem;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+    .box {
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      width: 250px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+    select, button {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      width: 100%;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0.5rem;
+    }
+    button {
+      background-color: #2ecc71;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #27ae60;
+    }
+    .footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Atbalsti manu sapni 🌲</h1>
+    <p>Izvēlies summu un sniedz savu atbalstu pārgājienu iedvesmotam sapnim!</p>
+  </header>
+
+  <section class="donate-section">
+    <!-- 1–10 -->
+    <div class="box">
+      <h3>Manam sapnim</h3>
+      <p>€1 līdz €10</p>
+      <select id="amount1">
+        <option value="1">€1</option>
+        <option value="2">€2</option>
+        <option value="3">€3</option>
+        <option value="4">€4</option>
+        <option value="5">€5</option>
+        <option value="6">€6</option>
+        <option value="7">€7</option>
+        <option value="8">€8</option>
+        <option value="9">€9</option>
+        <option value="10">€10</option>
+      </select>
+      <button onclick="donate('amount1')">Ziedot</button>
+    </div>
+
+    <!-- 10–15 -->
+    <div class="box">
+      <h3>Manam sapnim</h3>
+      <p>€10 līdz €15</p>
+      <select id="amount2">
+        <option value="10">€10</option>
+        <option value="11">€11</option>
+        <option value="12">€12</option>
+        <option value="13">€13</option>
+        <option value="14">€14</option>
+        <option value="15">€15</option>
+      </select>
+      <button onclick="donate('amount2')">Ziedot</button>
+    </div>
+
+    <!-- 15–20 -->
+    <div class="box">
+      <h3>Manam sapnim</h3>
+      <p>€15 līdz €20</p>
+      <select id="amount3">
+        <option value="15">€15</option>
+        <option value="16">€16</option>
+        <option value="17">€17</option>
+        <option value="18">€18</option>
+        <option value="19">€19</option>
+        <option value="20">€20</option>
+      </select>
+      <button onclick="donate('amount3')">Ziedot</button>
+    </div>
+  </section>
+
+  <div class="footer">
+    ❤️ Paldies par atbalstu! Tu palīdz piepildīt sapni!
+  </div>
+
+  <script>
+    const stripe = Stripe("pk_test_51RDpC3FWn330hKo57X8t2tTxpp3k7wKkgKnvgXIlnQty0i0LkoQGFnEcySP4SoMzinnM7MgpBUtW7EoIJkCaOV0A00pfcC0ouR");
+
+    async function donate(selectId) {
+      const amount = document.getElementById(selectId).value;
+
+      const response = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Authorization": "Bearer sk_test_YOUR_SECRET_KEY_HERE"
+        },
+        body: new URLSearchParams({
+          payment_method_types: ["card"],
+          line_items: [{
+            price_data: {
+              currency: "eur",
+              product_data: { name: "Manam sapnim" },
+              unit_amount: amount * 100
+            },
+            quantity: 1
+          }],
+          mode: "payment",
+          success_url: window.location.href,
+          cancel_url: window.location.href
+        })
+      });
+
+      const session = await response.json();
+      stripe.redirectToCheckout({ sessionId: session.id });
+    }
+  </script>
+</body>
+</html>
